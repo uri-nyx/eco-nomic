@@ -55,13 +55,13 @@ func loginHandler(w http.ResponseWriter, r *http.Request, b *Bank) {
 
 	if err != nil {
 		// Account number not well formatted
-		errors = append(errors, "Account number must be a non negative integer")
+		errors = append(errors, "El número de cuenta debe ser un entero positivo")
 	}
 
 	_, err = b.GetAccountHolder(int64(id))
 	if err != nil {
 		// Account not found i db
-		errors = append(errors, "Account not found (are you signed up?)")
+		errors = append(errors, "Cuenta no encontrada (debe darse de alta)")
 	}
 
 	/*
@@ -209,17 +209,17 @@ func transferHandler(w http.ResponseWriter, r *http.Request, b *Bank) {
 
 	creditor, err := strconv.ParseUint(r.FormValue("to"), 10, 64)
 	if err != nil {
-		errors = append(errors, "The account number must be a non negative integer!")
+		errors = append(errors, "El número de cuenta debe ser un entero positivo")
 	}
 
 	amount, err := strconv.ParseInt(r.FormValue("amount"), 10, 64)
 	if err != nil {
-		errors = append(errors, "The ammount to transfer must be a non negative integer!")
+		errors = append(errors, "El importe a transferir debe ser un entero positivo")
 	}
 
 	due, err := strconv.ParseUint(r.FormValue("due"), 10, 64)
 	if err != nil {
-		errors = append(errors, "The date must be a non negative integer!")
+		errors = append(errors, "La fecha debe ser un entero positivo")
 	}
 
 	if len(errors) > 0 {
@@ -285,7 +285,7 @@ func revokeHandler(w http.ResponseWriter, r *http.Request, b *Bank) {
 
 	transaction_id, err := strconv.ParseUint(path.Base(r.URL.Path), 10, 64)
 	if err != nil {
-		errors = append(errors, "Invalid transaction id")
+		errors = append(errors, "Identificador de transacción erróneo")
 		renderTemplate(w, "account", &PageData{Clock: b.clock, Account: a, Errors: errors})
 		return
 	}
@@ -347,7 +347,7 @@ func readHandler(w http.ResponseWriter, r *http.Request, b *Bank) {
 
 	letter_id, err := strconv.ParseUint(path.Base(r.URL.Path), 10, 64)
 	if err != nil {
-		errors = append(errors, "Invalid letter id")
+		errors = append(errors, "Identificador de carta erróneo")
 		renderTemplate(w, "account", &PageData{Clock: b.clock, Account: a, Errors: errors})
 		return
 	}

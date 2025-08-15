@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Account</title>
+    <title>Su Cuenta</title>
     <script src="/static/js/sorttable.js"></script>
 </head>
 
 <body>
     <h1>
-        <span>{{.Account.Holder}}</span>
+        <span>Hola, {{.Account.Holder}}</span>
     </h1>
     <a href="/logout/">
         <!-- Logout Icon -->
-        LOGOUT
+        Cerrar Sesión
     </a>
     <br>
     <a href="/letter/">
         <!-- Logout Icon -->
-        WRITE LETTER
+        Enviar Carta
     </a>
 
 
@@ -29,23 +29,24 @@
         <div>
             <i>BALANCE: </i>
             {{ if gt .Account.Balance 0 }}
-            <span>{{.Account.Balance}}</span>
+            <span style="color: green">{{.Account.Balance}}</span>
             {{ else }}
-            <span>{{.Account.Balance}}</span>
+            <span style="color: red">{{.Account.Balance}}</span>
             {{ end }}
+            $
 
         </div>
 
         <!-- Account Number Icon -->
         <div>
-            <i>ACCOUNT NUMBER: </i>
+            <i>Núero de Cuenta: </i>
             <span>{{.Account.Id}}</span>
         </div>
 
 
         <!-- Date Icon -->
         <div>
-            <i>DATE: </i>
+            <i>Fecha: </i>
             <span>{{.Clock}}</span>
         </div>
 
@@ -63,18 +64,18 @@
     </div>
 
     <div id="transfer">
-        <h3>Order a Transfer</h3>
+        <h3>Orderne una transferencia</h3>
         <form action="/transfer/" method="post">
-            <label for="concept"><i></i>Concept:</label>
+            <label for="concept"><i></i>Concepto:</label>
             <input type="text" name="concept" value="Gift" required>
 
-            <label for="amount"><i></i>Amount:</label>
+            <label for="amount"><i></i>Importe:</label>
             <input type="number" name="amount" min="0" required>
 
-            <label for="to"><i></i>To:</label>
+            <label for="to"><i></i>A favor de:</label>
             <input type="number" name="to" min="0" required>
 
-            <label for="due"><i></i>Due:</label>
+            <label for="due"><i></i>Fecha de pago:</label>
             <input type="number" name="due" min="0" value="{{.Clock}}" required>
 
             <input type="submit" value="Submit">
@@ -90,16 +91,16 @@
                         ID
                     </th>
                     <th>
-                        DUE
+                        Fecha
                     </th>
                     <th>
-                        CONCEPT
+                        Concepto
                     </th>
                     <th>
-                        AMOUNT
+                        Importe
                     </th>
                     <th>
-                        ACCOUNT
+                        Cuenta
                     </th>
                 </tr>
             </thead>
@@ -119,21 +120,21 @@
     </div>
 
     <div id="inbox">
-        <h3>INBOX</h3>
+        <h3>Buzón</h3>
         <table class="sortable">
             <thead>
                 <tr>
                     <th>
-                        Date
+                        Fecha
                     </th>
                     <th>
-                        Title
+                        Título
                     </th>
                     <th>
-                        From
+                        Remitente
                     </th>
                     <th>
-                        To
+                        Destinatario
                     </th>
                 </tr>
             </thead>

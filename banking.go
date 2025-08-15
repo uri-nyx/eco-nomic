@@ -22,6 +22,8 @@ type Account struct {
 	Letters []Letter
 }
 
+
+
 func (a *Account) LoadLetter(letter_id uint64, b *Bank) (Letter, error) {
 	// check if account is either sender or receiver of this letter
 	var l Letter
@@ -35,7 +37,7 @@ func (a *Account) LoadLetter(letter_id uint64, b *Bank) (Letter, error) {
 	}
 
 	if !found {
-		return l, fmt.Errorf("No such letter in your inbox")
+		return l, fmt.Errorf("No se encontró la carta en su buzón")
 	}
 
 	body, err := os.ReadFile(l.Path)
@@ -262,28 +264,28 @@ func (b *Bank) Transfer(from uint64, to uint64, amount int64, due uint64, concep
 	// TODO: check if transaction is valid, and tidy up error messages
 	// cannot transfer to self!
 	if from == to {
-		return fmt.Errorf("Cannot transfer to self!")
+		return fmt.Errorf("No se puede transferir dinero a su misma cuenta")
 	}
 
 	// cannot transfer if balance is lesser than amount
 	if amount > b.balance(int64(from)) {
-		return fmt.Errorf("Insufficient funds!")
+		return fmt.Errorf("No dispone de los fondos suficientes")
 	}
 
 	// cannot transfer negative moneys
 	if amount < 0 {
-		return fmt.Errorf("Cannot transfer negative moneys!")
+		return fmt.Errorf("No es posible transferir un importe negativo")
 	}
 
 	// cannot transfer in the past!
 	if due < b.clock {
-		return fmt.Errorf("Cannot travel in time!")
+		return fmt.Errorf("No es posible viajar en el tiempo...")
 	}
 
 	// cannot transfer to no one or a non existing account
 	_, err := b.GetAccountHolder(int64(to))
 	if err != nil {
-		return fmt.Errorf("The account you are trying to transfer to does not exist!")
+		return fmt.Errorf("La cuenta a la que está intentando ordernar la transferencia no existe")
 	}
 
 
@@ -352,9 +354,9 @@ func (b *Bank) getTransactions(id int64) ([]Transaction, error) {
 			}
 
 			if transactions[i].Debitor < 0 { 
-				transactions[i].To_from = fmt.Sprintf("from %s", debitor) 
+				transactions[i].To_from = fmt.Sprintf("de %s", debitor) 
 			} else { 
-				transactions[i].To_from = fmt.Sprintf("from %s [%04d]", debitor, transactions[i].Debitor) 
+				transactions[i].To_from = fmt.Sprintf("de %s [%04d]", debitor, transactions[i].Debitor) 
 			}
 		} else {
 			creditor, err := b.GetAccountHolder(transactions[i].Creditor)
@@ -363,9 +365,9 @@ func (b *Bank) getTransactions(id int64) ([]Transaction, error) {
 			}
 
 			if transactions[i].Creditor < 0 {
-				transactions[i].To_from = fmt.Sprintf("to %s", creditor)
+				transactions[i].To_from = fmt.Sprintf("a %s", creditor)
 			} else { 
-				transactions[i].To_from = fmt.Sprintf("to %s [%04d]", creditor, transactions[i].Creditor)
+				transactions[i].To_from = fmt.Sprintf("a %s [%04d]", creditor, transactions[i].Creditor)
 			}
 
 			transactions[i].Amount = - transactions[i].Amount
@@ -460,7 +462,7 @@ func (b *Bank) RevokeTransaction(account_id int64, transaction_id uint64) error 
 			return err
 		}
 	} else {
-		return fmt.Errorf("Transaction does not meet the requirements to be revoked, contact the Bank to resolve this issue.")
+		return fmt.Errorf("La transacción no cumple los requerimientos para ser revocada por usted. Contacte con el Banco para resolver el problema.")
 	}
 
 	return nil

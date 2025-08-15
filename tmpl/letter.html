@@ -1,7 +1,7 @@
-<h1>Send a letter, {{.Account.Holder}}</h1>
-<p>If you desire to send a letter to the Bank, use the "0" account number.</p>
-<p>If you wish to send a letter to a different person, please type their account number. 
-    If you don't know the number, please check our <a href="/book/">accounts book</a>.</p>
+<h1>Envíe una carta, {{.Account.Holder}}</h1>
+<p>Si desea enviar una carta al Banco, use el número de cuenta "0".</p>
+<p>Si desea enviar una carta a otra persona, por favor, use su número de cuenta. 
+    Si no sabe el número puede consultar su <a href="/book/">agenda de contactos</a>.</p>
 
 {{if .Errors }}
     <ul>
@@ -12,8 +12,8 @@
 {{end}}
 
 <form action="/send/" method="POST">
-    <div><label for="to">To (account number):</label><input type="number" name="to" value="0" required></div>
-    <div><label for="title">Title:</label><input type="text" name="title" value="To the Governor" required></div>
-    <div><textarea name="body" rows="20" cols="80">{{printf "From: %s\nDated %d\n,\n" .Account.Holder .Clock}}</textarea></div>
+    <div><label for="to">Destinatario (número de cuenta):</label><input type="number" name="to" value="0" required></div>
+    <div><label for="title">Título:</label><input type="text" name="title" value="Sin título" required></div>
+    <div><textarea name="body" rows="20" cols="80">{{printf "De: %s\nA fecha %d\n" .Account.Holder .Clock}}</textarea></div>
     <div><input type="submit" value="Send"></div>
 </form>
