@@ -1,0 +1,19 @@
+<h1>Send a letter, {{.Account.Holder}}</h1>
+<p>If you desire to send a letter to the Bank, use the "0" account number.</p>
+<p>If you wish to send a letter to a different person, please type their account number. 
+    If you don't know the number, please check our <a href="/book/">accounts book</a>.</p>
+
+{{if .Errors }}
+    <ul>
+    {{range .Errors}}
+        <li>{{.}}</li>
+    {{end}}
+    </ul>
+{{end}}
+
+<form action="/send/" method="POST">
+    <div><label for="to">To (account number):</label><input type="number" name="to" value="0" required></div>
+    <div><label for="title">Title:</label><input type="text" name="title" value="To the Governor" required></div>
+    <div><textarea name="body" rows="20" cols="80">{{printf "From: %s\nDated %d\n,\n" .Account.Holder .Clock}}</textarea></div>
+    <div><input type="submit" value="Send"></div>
+</form>

@@ -1,0 +1,4 @@
+*.sqlite3
+bank/*
+static/webfonts
+tmpl/wiki/*

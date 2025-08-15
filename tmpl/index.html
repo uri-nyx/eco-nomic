@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bank</title>
+</head>
+
+<body>
+    <h1>Welcome to THE BANK</h1>
+    <p>
+        This is a very simple online banking system to use for boardgames such as
+        Monopoly, or any online chat games that you might think of (maybe Nomic?). It's
+        not secure at all! Beware! Don't use real information and maybe don't try to
+        hack it while playing... or do, if it makes the game fun!
+    </p>
+
+    <h3>Current date: <em>{{.Clock}}</em></h3>
+
+    <div>
+        {{ if .Errors }}
+        <ul>
+            {{ range .Errors }}
+            <span><i></i>{{ . }}</span>
+            {{end}}
+        </ul>
+        {{ end }}
+    </div>
+
+    <form action="/login/" method="POST">
+        <label for="name">Name</label>
+        <input type="text" name="name" required>
+
+        <label for="account">Account Number</label>
+        <input type="number" name="account" required>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" required>
+
+        <input type="submit" value="Log in">
+    </form>
+
+    <div>
+        <a href="/static/signup.txt">Sign up!</a>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Account</title>
+    <script src="/static/js/sorttable.js"></script>
+</head>
+
+<body>
+    <h1>
+        <span>{{.Account.Holder}}</span>
+    </h1>
+    <a href="/logout/">
+        <!-- Logout Icon -->
+        LOGOUT
+    </a>
+    <br>
+    <a href="/letter/">
+        <!-- Logout Icon -->
+        WRITE LETTER
+    </a>
+
+
+    <div>
+
+        <!-- Balance Icon -->
+        <div>
+            <i>BALANCE: </i>
+            {{ if gt .Account.Balance 0 }}
+            <span>{{.Account.Balance}}</span>
+            {{ else }}
+            <span>{{.Account.Balance}}</span>
+            {{ end }}
+
+        </div>
+
+        <!-- Account Number Icon -->
+        <div>
+            <i>ACCOUNT NUMBER: </i>
+            <span>{{.Account.Id}}</span>
+        </div>
+
+
+        <!-- Date Icon -->
+        <div>
+            <i>DATE: </i>
+            <span>{{.Clock}}</span>
+        </div>
+
+    </div>
+
+    <div>
+
+        {{ if .Errors }}
+        <ul>
+            {{ range .Errors }}
+            <span><i></i> {{ . }}</span>
+            {{end}}
+        </ul>
+        {{ end }}
+    </div>
+
+    <div id="transfer">
+        <h3>Order a Transfer</h3>
+        <form action="/transfer/" method="post">
+            <label for="concept"><i></i>Concept:</label>
+            <input type="text" name="concept" value="Gift" required>
+
+            <label for="amount"><i></i>Amount:</label>
+            <input type="number" name="amount" min="0" required>
+
+            <label for="to"><i></i>To:</label>
+            <input type="number" name="to" min="0" required>
+
+            <label for="due"><i></i>Due:</label>
+            <input type="number" name="due" min="0" value="{{.Clock}}" required>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <div id="transactions">
+        <h3>Transaction List</h3>
+        <table class="sortable">
+            <thead>
+                <tr>
+                    <th>
+                        ID
+                    </th>
+                    <th>
+                        DUE
+                    </th>
+                    <th>
+                        CONCEPT
+                    </th>
+                    <th>
+                        AMOUNT
+                    </th>
+                    <th>
+                        ACCOUNT
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody id="transaction-table-body">
+                {{range .Account.Transactions}}
+                <tr>
+                    <td>{{.Id}}</td>
+                    <td>{{.Date}}</td>
+                    <td>{{.Concept}}</td>
+                    <td>{{.Amount}}</td>
+                    <td>{{.To_from}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="inbox">
+        <h3>INBOX</h3>
+        <table class="sortable">
+            <thead>
+                <tr>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Title
+                    </th>
+                    <th>
+                        From
+                    </th>
+                    <th>
+                        To
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="transaction-table-body">
+                {{range .Account.Letters}}
+                <tr>
+                    <td>{{.Date}}</td>
+                    <td><a href="/read/{{.Timestamp}}">{{.Title}}</a></td>
+                    <td>{{.From}}</td>
+                    <td>{{.To}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

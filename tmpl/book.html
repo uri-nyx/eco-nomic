@@ -1,0 +1,20 @@
+<h1>Book of accounts</h1>
+
+<table>
+    <thead>
+        <th>Holder</th>
+        <th>Account No.</th>
+    </thead>
+    <tbody>
+        {{ range .}}
+        <tr>
+            <td>
+                {{.Holder}}
+            </td>
+            <td>
+                [{{.Id}}]
+            </td>
+        </tr>
+        {{ end }}
+    </tbody>
+</table>

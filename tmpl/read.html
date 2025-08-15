@@ -1,0 +1,15 @@
+<h1>{{.Title}}</h1>
+
+<hr>
+
+<div>
+    <p><strong>From:</strong> {{.From}} [{{.Sender}}]</p>
+    <p><strong>To:</strong> {{.To}} [{{.Receiver}}]</p>
+    <p><strong>Date Sent:</strong> {{.Date}}</p>
+</div>
+
+<hr>
+
+<div>{{printf "%s" .Body}}</div>
+
+<hr>
