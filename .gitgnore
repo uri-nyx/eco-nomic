@@ -2,3 +2,6 @@
 bank/*
 static/webfonts
 tmpl/wiki/*
+*.exe
+*.sum
+static/archive/*
