@@ -1,0 +1,410 @@
+/* --- Estilos Generales --- */
+
+/* Reseteo y fuente principal para un toque retro */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    --bg: #f0f0f0;
+    --fg: #333;
+    --accent: #650000;
+    --error-bg: #ffebeb;
+    --error-color: #d9534f;
+    --error-text: #d9534f;
+    --form-bg: #fff;
+    --box-shadow: #ccc;
+    --th-bg: #e9e9e9;
+    --a-hover: #000;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 100vh;
+}
+
+body:has(#dark:checked) {
+    --bg: #333;
+    --fg: #f0f0f0;
+    --accent: #ffc800;
+    --error-bg: #d9534f;
+    --error-color: #ffebeb;
+    --error-text: #d9534f;
+    --form-bg: #111;
+    --box-shadow: #222;
+    --th-bg: #1a1a1a;
+    --a-hover: #fff;
+}
+
+p,
+ul,
+ol,
+dl,
+pre,
+blockquote,
+form {
+    margin: 0 auto 30px auto;
+}
+
+p {
+    max-width: 500px;
+    text-align: justify;
+    text-indent: 2em;
+}
+
+ul,
+ol,
+dl {
+    max-width: 500px;
+    margin-left: 140px;
+    text-align: justify;
+    padding-left: 20px;
+}
+
+ul {
+    list-style: none;
+}
+
+ol {
+    padding-left: 50px;
+}
+
+ul li::before {
+    content: '— ';
+    font-weight: bold;
+    color: var(--accent);
+}
+
+ul li p {
+    margin-top: -2.7%;
+}
+
+ul ul,
+ol ol {
+    margin-top: 5px;
+    margin-left: 30px;
+}
+
+/* ------------------------------------- */
+/* Estilos para Listas de Descripción    */
+/* ------------------------------------- */
+
+
+dt {
+    /* Estilo para los términos de la lista, haciéndolos más visibles */
+    counter-reset: description-counter;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+}
+
+dd {
+    /* Sangrado y espaciado para las descripciones */
+    margin-left: 20px;
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+dd::before {
+    /* Añade el símbolo de sección y un número para diferenciar cada descripción */
+    counter-increment: description-counter;
+    content: "\00a7" counter(description-counter) " ";
+    font-weight: bold;
+    color: var(--fg);
+}
+
+/* --- Tipografía y Títulos --- */
+h1 {
+    font-size: 2.5em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--fg);
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+h3 {
+    font-size: 1.2em;
+    margin: 10px 0 20px 0;
+    font-weight: normal;
+}
+
+em {
+    font-style: italic;
+    color: var(--accent);
+}
+
+/* --- Contenedores y Estructura --- */
+div {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+hr {
+    width: 100%;
+    max-width: 600px;
+    margin: 50px auto;
+}
+
+/* --- Mensajes de Error --- */
+div span {
+    display: block;
+    background-color: var(--error-bg);
+    color: var(--error-color);
+    border: 1px solid var(--error-text);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/* --- Formularios y Entradas --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    background-color: var(--form-bg);
+    border: 2px solid var(--fg);
+    box-shadow: 8px 8px 0px var(--box-shadow);
+    text-align: left;
+}
+
+form h3 {
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--fg);
+    text-transform: uppercase;
+    text-decoration: underline;
+    margin: 0;
+}
+
+label {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--fg);
+    background-color: var(--bg);
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--fg);
+}
+
+input[type="submit"] {
+    background-color: var(--fg);
+    color: var(--form-bg);
+    padding: 10px 20px;
+    border: 2px solid var(--fg);
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    align-self: center;
+}
+
+input[type="submit"]:hover {
+    background-color: var(--form-bg);
+    color: var(--fg);
+}
+
+/* --- Tablas --- */
+
+table {
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto 20px auto;
+    overflow-x: auto;
+    border-collapse: collapse;
+    background-color: var(--form-bg);
+    border: 2px solid var(--fg);
+    box-shadow: 8px 8px 0px var(--box-shadow);
+    text-align: center;
+}
+
+th,
+td {
+    border: 1px solid var(--box-shadow);
+    padding: 10px;
+}
+
+th {
+    background-color: var(--th-bg);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+caption {
+    caption-side: top;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    font-weight: bold;
+    padding: 10px 0;
+    color: var(--fg);
+    text-align: center;
+}
+
+/* --- Contenedores con estilos específicos --- */
+pre,
+blockquote {
+    max-width: 500px;
+    padding: 20px;
+    background-color: var(--form-bg);
+    border: 2px solid var(--fg);
+    box-shadow: 8px 8px 0px var(--box-shadow);
+}
+
+pre {
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+blockquote {
+    max-width: 800px;
+    text-align: justify;
+    font-style: italic;
+}
+
+section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* --- Enlaces y Botones --- */
+a,
+nav a {
+    text-decoration: none;
+    transition: color 0.3s ease, background-color 0.3s ease, border-bottom 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+a {
+    color: var(--fg);
+    border-bottom: 1px dotted var(--fg);
+}
+
+a:hover {
+    color: var(--a-hover);
+    border-bottom: 1px solid var(--a-hover);
+}
+
+#dark-mode,
+nav a {
+    display: inline-block;
+    background-color: var(--fg);
+    color: var(--form-bg);
+    padding: 5px 10px;
+    font-size: 0.8em;
+    border: 2px solid var(--fg);
+    border-bottom: none;
+    margin-right: 10px;
+}
+
+#dark-mode:hover,
+nav a:hover {
+    background-color: var(--form-bg);
+    color: var(--fg);
+}
+
+#dark-mode {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+}
+
+#dark-mode input[type="checkbox"] {
+    appearance: none;
+}
+
+nav {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+nav a:last-child {
+    margin-right: 0;
+}
+
+/* --- Media Queries --- */
+
+/* Móviles */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 2em;
+        letter-spacing: 1px;
+    }
+
+    form,
+    table {
+        box-shadow: 4px 4px 0px var(--box-shadow);
+    }
+
+    form {
+        padding: 15px;
+    }
+
+    table {
+        font-size: 0.9em;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+
+    ul,
+    ol,
+    dl {
+        max-width: 590px;
+        margin-left: 20px;
+        text-align: justify;
+        padding-left: 10px;
+    }
+}
+
+/* Escritorio */
+@media (min-width: 1024px) {
+
+    hr
+    {
+        max-width: 1200px;
+    }
+
+    p,
+    ul,
+    ol,
+    dl,
+    form,
+    table {
+        max-width: 1000px;
+    }
+}

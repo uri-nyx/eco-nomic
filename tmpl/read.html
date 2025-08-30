@@ -1,15 +1,81 @@
-<h1>{{.Title}}</h1>
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
 
-<hr>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {{ if .ReadLetter.Public }}
+        {{.ReadLetter.Title}}
+    {{ else }}
+        {{if eq .Lang "es"}}                
+        Carta de {{.ReadLetter.From}}
+        {{else if eq .Lang "en"}}
+        Letter from {{.ReadLetter.From}}
+        {{end}}
+    {{ end }}
+    </title>
+    <link rel="stylesheet" href="/static/css/retro.css">
+</head>
 
-<div>
-    <p><strong>Remitente:</strong> {{.From}} [{{.Sender}}]</p>
-    <p><strong>Destinatario:</strong> {{.To}} [{{.Receiver}}]</p>
-    <p><strong>Fecha de envío:</strong> {{.Date}}</p>
-</div>
+<body>
 
-<hr>
+    
+    {{if eq .Lang "es"}}
+        {{if .ReadLetter.Public}}
+        <a href="/a/en/doc/{{.ReadLetter.Timestamp}}">
+        {{else}}
+        <a href="/a/en/read/{{.ReadLetter.Timestamp}}">
+        {{end}}
+            This page is available in English. Contents will remain in the language they were written in.
+    </a>
+    {{else if eq .Lang "en"}}
+        {{if .ReadLetter.Public}}
+        <a href="/a/es/doc/{{.ReadLetter.Timestamp}}">
+        {{else}}
+        <a href="/a/es/read/{{.ReadLetter.Timestamp}}">
+        {{end}}
+        Esta página está disponible en español. Los contenidos permanecerán en la lengua en la que fueron escritos.
+    </a>
+    {{end}}
 
-<div>{{printf "%s" .Body}}</div>
 
-<hr>
+    <h1>{{.ReadLetter.Title}}</h1>
+
+    <label id="dark-mode">
+        <input id="dark" type="checkbox">
+        Modo oscuro
+    </label>
+
+    <hr>
+
+    <div>
+        {{ if .ReadLetter.Public }}
+        {{if eq .Lang "es"}}                
+        <h3>Publicado por <em>{{.ReadLetter.From}}</em> a fecha {{.ReadLetter.Date}}</h3>
+        {{else if eq .Lang "en"}}
+        <h3>Publised by <em>{{.ReadLetter.From}}</em> on date {{.ReadLetter.Date}}</h3>
+        {{end}}
+        {{ else }}
+        <p style="text-align: left;">
+            {{if eq .Lang "es"}}                
+            <strong>Remitente:</strong> {{.ReadLetter.From}} [{{.ReadLetter.Sender}}] <br>
+            <strong>Destinatario:</strong> {{.ReadLetter.To}} [{{.ReadLetter.Receiver}}] <br>
+            <strong>Fecha de envío:</strong> {{.ReadLetter.Date}}
+            {{else if eq .Lang "en"}}
+            <strong>Sender:</strong> {{.ReadLetter.From}} [{{.ReadLetter.Sender}}] <br>
+            <strong>Recipient:</strong> {{.ReadLetter.To}} [{{.ReadLetter.Receiver}}] <br>
+            <strong>Date sent:</strong> {{.ReadLetter.Date}}
+            {{end}}
+        </p>
+        {{ end }}
+    </div>
+
+    <hr>
+
+    <div>{{.ReadLetter.Html}}</div>
+
+    <hr>
+</body>
+
+</html>

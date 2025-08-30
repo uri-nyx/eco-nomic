@@ -6,38 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         {{if eq .Lang "es"}}
-        Agenda de Contactos
+        Registro Público de Documentos
         {{else if eq .Lang "en"}}
-        Contact List
+        Public Archive
         {{end}}
     </title>
     <link rel="stylesheet" href="/static/css/retro.css">
     <script src="/static/js/sorttable.js"></script>
-
 </head>
 
 <body>
-
-
+    
     <h1>
         {{if eq .Lang "es"}}
-        Agenda de Contactos
+        Registro Público de Documentos
         {{else if eq .Lang "en"}}
-        Contact List
+        Public Archive
         {{end}}
     </h1>
 
     
     {{if eq .Lang "es"}}
-    <a href="/a/en/book">
+    <a href="/a/en/archive">
         This page is available in English
     </a>
     {{else if eq .Lang "en"}}
-    <a href="/a/es/book">
+    <a href="/a/es/archive">
         Esta página está disponible en español
     </a>
     {{end}}
-    
+
     <label id="dark-mode">
         <input id="dark" type="checkbox">
         {{if eq .Lang "es"}}
@@ -50,29 +48,37 @@
     <table class="sortable">
         <thead>
             <th>
-                {{if eq .Lang "es"}}                
-                Titular
+                {{if eq .Lang "es"}}
+                Fecha
                 {{else if eq .Lang "en"}}
-                Account Holder
+                Date
                 {{end}}
             </th>
             <th>
-                {{if eq .Lang "es"}}                
-                Nº de cuenta
+                {{if eq .Lang "es"}}
+                Autor
                 {{else if eq .Lang "en"}}
-                Account No.
+                Author
                 {{end}}
+            </th>
+            <th>
+                {{if eq .Lang "es"}}
+                Título
+                {{else if eq .Lang "en"}}
+                Title
+                {{end}}
+            </th>
+            <th>
+                ID
             </th>
         </thead>
         <tbody>
-            {{ range .AccountsBook}}
+            {{ range .PublicArchive}}
             <tr>
-                <td>
-                    {{.Holder}}
-                </td>
-                <td>
-                    [{{.Id}}]
-                </td>
+                <td>{{.Date}}</td>
+                <td>{{.From}}</td>
+                <td><a href="/a/{{$.Lang}}/doc/{{.Timestamp}}">{{.Title}}</a></td>
+                <td>{{.Timestamp}}</td>
             </tr>
             {{ end }}
         </tbody>

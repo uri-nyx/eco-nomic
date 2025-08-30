@@ -1,23 +1,88 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{.Lang}}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Banco</title>
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/css/retro.css">
 </head>
 
 <body>
-    <h1>Bienvenido al BANCO</h1>
-    <p>
+
+    <h1>
+        {{if eq .Lang "es"}}
+        Le damos la bienvenida a {{.Title}}
+        {{else if eq .Lang "en"}}
+        Welcome to {{.Title}}
+        {{end}}
+    </h1>
+
+    <p style="text-align:justify;">
+        {{if eq .Lang "es"}}
         Este es un sistema de banca en línea muy simple para usar en juegos de mesa como Monopoly, o cualquier juego de
         chat en línea que se te ocurra (¿tal vez Nomic?). ¡No es nada seguro! ¡Ten cuidado! No uses información real y
         no intentes hackearlo mientras juegas... o sí, ¡si eso hace que el juego sea divertido!
+        {{else if eq .Lang "en"}}
+        This is a very simple online banking system to use for boardgames such as
+        Monopoly, or any online chat games that you might think of (maybe Nomic?). It's
+        not secure at all! Beware! Don't use real information and maybe don't try to
+        hack it while playing... or do, if it makes the game fun!
+        {{end}}
     </p>
 
-    <h3>Current date: <em>{{.Clock}}</em></h3>
+    {{if eq .Lang "es"}}
+    <a href="/a/en">
+        This page is available in English
+    </a>
+    {{else if eq .Lang "en"}}
+    <a href="/a/es">
+        Esta página está disponible en español
+    </a>
+    {{end}}
+
+    <h3>
+        {{if eq .Lang "es"}}
+        Fecha:
+        {{else if eq .Lang "en"}}
+        Date:
+        {{end}}
+
+        <em>{{.Clock}}</em>
+    </h3>
+    
+
+    <nav>
+        <a href="/a/{{.Lang}}/archive/">
+            {{if eq .Lang "es"}}
+            Registro Público
+            {{else if eq .Lang "en"}}
+            Public Archive
+            {{end}}
+        </a>
+
+        <a href="/static/signup.txt">
+            {{if eq .Lang "es"}}
+            Date de alta!
+            {{else if eq .Lang "en"}}
+            Sign Up!
+            {{end}}
+        </a>
+
+
+        <label id="dark-mode">
+            <input id="dark" type="checkbox">
+            {{if eq .Lang "es"}}
+            Modo oscuro
+            {{else if eq .Lang "en"}}
+            Dark Mode
+            {{end}}
+        </label>
+
+    </nav>
 
     <div>
+        <!-- Errors are translated by the server-->
         {{ if .Errors }}
         <ul>
             {{ range .Errors }}
@@ -27,22 +92,37 @@
         {{ end }}
     </div>
 
-    <form action="/login/" method="POST">
-        <label for="name">Nombre</label>
+    <form action="/a/{{.Lang}}/login/" method="POST">
+        <label for="name">
+            {{if eq .Lang "es"}}
+            Nombre
+            {{else if eq .Lang "en"}}
+            Name
+            {{end}}
+        </label>
         <input type="text" name="name" required>
 
-        <label for="account">Número de cuenta</label>
+        <label for="account">
+            {{if eq .Lang "es"}}
+            Número de cuenta
+            {{else if eq .Lang "en"}}
+            Account Number
+            {{end}}
+        </label>
         <input type="number" name="account" required>
 
-        <label for="password">Contraseña</label>
+        <label for="password">
+            {{if eq .Lang "es"}}
+            Contraseña
+            {{else if eq .Lang "en"}}
+            Password
+            {{end}}
+        </label>
         <input type="password" name="password" required>
 
-        <input type="submit" value="Log in">
+        <input type="submit" value='{{if eq .Lang "es"}}Entrar{{else if eq .Lang "en"}}Login{{end}}'>
     </form>
 
-    <div>
-        <a href="/static/signup.txt">Date de alta!</a>
-    </div>
 </body>
 
 </html>

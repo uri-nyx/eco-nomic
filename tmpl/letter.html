@@ -1,19 +1,113 @@
-<h1>Envíe una carta, {{.Account.Holder}}</h1>
-<p>Si desea enviar una carta al Banco, use el número de cuenta "0".</p>
-<p>Si desea enviar una carta a otra persona, por favor, use su número de cuenta. 
-    Si no sabe el número puede consultar su <a href="/book/">agenda de contactos</a>.</p>
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
 
-{{if .Errors }}
-    <ul>
-    {{range .Errors}}
-        <li>{{.}}</li>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {{if eq .Lang "es"}}
+        Nuevo Documento
+        {{else if eq .Lang "en"}}
+        Nuevo Documento
+        {{end}}
+    </title>
+    <link rel="stylesheet" href="/static/css/retro.css">
+</head>
+
+<body>
+    <h1>
+        {{if eq .Lang "es"}}
+        Escriba un nuevo documento, {{.Account.Holder}}
+        {{else if eq .Lang "en"}}
+        Write a new document, {{.Account.Holder}}
+        {{end}}
+    </h1>
+    
+    <label id="dark-mode">
+        <input id="dark" type="checkbox">
+        {{if eq .Lang "es"}}
+        Modo oscuro
+        {{else if eq .Lang "en"}}
+        Dark mode
+        {{end}}
+    </label>
+
+    <p>
+        {{if eq .Lang "es"}}
+        Si desea enviar una carta al Banco, use el número de cuenta "0". Si desea enviar una carta a otra persona, por favor, use su número de cuenta.
+        Si no sabe el número puede consultar su <a href="/a/{{.Lang}}/book/">agenda de contactos</a>.
+        {{else if eq .Lang "en"}}
+        If you want to send a letter to the Bank, use account number "0". If you want to send a letter to another person, please use their account number.
+        If you don't know the number, you can check your <a href="/a/{{.Lang}}/book/">contact list</a>.
+        {{end}}
+    </p>
+    <p>
+        {{if eq .Lang "es"}}
+        Si desea publicar el documento en el <a href="/a/{{.Lang}}/archive/">Registro Público</a>, use el botón <em>PUBLICAR</em>
+        {{else if eq .Lang "en"}}
+        If you want to publish the document in the <a href="/a/{{.Lang}}/archive/">Public Archive</a>, use the <em>PUBLISH</em> button
+        {{end}}
+    </p>
+
+    
+    {{if eq .Lang "es"}}
+    <a href="/a/en/letter">
+        This page is available in English
+    </a>
+    {{else if eq .Lang "en"}}
+    <a href="/a/es/letter">
+        Esta página está disponible en español
+    </a>
     {{end}}
-    </ul>
-{{end}}
 
-<form action="/send/" method="POST">
-    <div><label for="to">Destinatario (número de cuenta):</label><input type="number" name="to" value="0" required></div>
-    <div><label for="title">Título:</label><input type="text" name="title" value="Sin título" required></div>
-    <div><textarea name="body" rows="20" cols="80">{{printf "De: %s\nA fecha %d\n" .Account.Holder .Clock}}</textarea></div>
-    <div><input type="submit" value="Send"></div>
-</form>
+    {{if .Errors }}
+    <ul>
+        {{range .Errors}}
+        <li>{{.}}</li>
+        {{end}}
+    </ul>
+    {{end}}
+
+    <form action="/a/{{.Lang}}/send/" method="POST">
+        <div>
+            <label for="to">
+                {{if eq .Lang "es"}}
+                Destinatario:
+                {{else if eq .Lang "en"}}
+                Recipient:
+                {{end}}
+            </label>
+            <select name="to">
+                {{ range .Book }}
+                    <option value="{{.Id}}">{{.Holder}} [{{.Id}}]</option>
+                {{ end }}
+              </select>
+        </div>
+        <div>
+            <label for="title">
+                {{if eq .Lang "es"}}
+                Título:
+                {{else if eq .Lang "en"}}
+                Title:
+                {{end}}
+            </label>
+            <input type="text" name="title" 
+                value='{{if eq .Lang "es"}}Sin título{{else if eq .Lang "en"}}Untitled{{end}}' required>
+        </div>
+        
+        <div><textarea name="body" rows="15">
+            {{if eq .Lang "es"}}
+            {{printf "De: %s\nA fecha %d\n" .Account.Holder .Clock}}
+            {{else if eq .Lang "en"}}
+            {{printf "From: %s\nOn date %d\n" .Account.Holder .Clock}}
+            {{end}}
+        </textarea></div>
+        <div>
+            <input type="submit" value='{{if eq .Lang "es"}}Enviar{{else if eq .Lang "en"}}Send{{end}}' name="send">
+            <input type="submit" value='{{if eq .Lang "es"}}Publicar{{else if eq .Lang "en"}}Publish{{end}}' name="publish">
+        </div>
+    </form>
+
+</body>
+
+</html>

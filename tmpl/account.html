@@ -1,114 +1,237 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{.Lang}}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Su Cuenta</title>
     <script src="/static/js/sorttable.js"></script>
+    <link rel="stylesheet" href="/static/css/retro.css">
 </head>
 
 <body>
     <h1>
-        <span>Hola, {{.Account.Holder}}</span>
+        {{if eq .Lang "es"}}
+        Hola, {{.Account.Holder}}
+        {{else if eq .Lang "en"}}
+        Hello, {{.Account.Holder}}
+        {{end}}
     </h1>
-    <a href="/logout/">
-        <!-- Logout Icon -->
-        Cerrar Sesión
-    </a>
-    <br>
-    <a href="/letter/">
-        <!-- Logout Icon -->
-        Enviar Carta
-    </a>
 
-
-    <div>
+    <section>
 
         <!-- Balance Icon -->
-        <div>
-            <i>BALANCE: </i>
-            {{ if gt .Account.Balance 0 }}
-            <span style="color: green">{{.Account.Balance}}</span>
-            {{ else }}
-            <span style="color: red">{{.Account.Balance}}</span>
-            {{ end }}
-            $
+        {{ if gt .Account.Balance 0 }}
 
+        <div style="color: green">
+            Balance:
+            {{.Account.Balance}}$
         </div>
+
+        {{ else }}
+
+        <div style="color: red">
+            Balance:
+            {{.Account.Balance}}$
+        </div>
+
+        {{ end }}
 
         <!-- Account Number Icon -->
         <div>
-            <i>Núero de Cuenta: </i>
-            <span>{{.Account.Id}}</span>
+            {{if eq .Lang "es"}}
+            Nº Cuenta:
+            {{else if eq .Lang "en"}}
+            Account No:
+            {{end}}
+            <em>{{.Account.Id}}</em>
         </div>
-
 
         <!-- Date Icon -->
         <div>
-            <i>Fecha: </i>
-            <span>{{.Clock}}</span>
+            {{if eq .Lang "es"}}
+            Fecha: <br>
+            {{else if eq .Lang "en"}}
+            Date <br>
+            {{end}}
+            {{.Clock}}
         </div>
 
-    </div>
+    </section>
+
+
+    {{if eq .Lang "es"}}
+    <a href="/a/en/account">
+        This page is available in English
+    </a>
+    {{else if eq .Lang "en"}}
+    <a href="/a/es/account">
+        Esta página está disponible en español
+    </a>
+    {{end}}
+
+    <nav>
+        <a href="/a/{{.Lang}}/logout/">
+            {{if eq .Lang "es"}}
+            Cerrar Sesión
+            {{else if eq .Lang "en"}}
+            Logout
+            {{end}}
+        </a>
+        <a href="/a/{{.Lang}}/letter/">
+            {{if eq .Lang "es"}}
+            Nuevo Documento
+            {{else if eq .Lang "en"}}
+            New Document
+            {{end}}
+        </a>
+        <a href="/a/{{.Lang}}/archive/">
+            {{if eq .Lang "es"}}
+            Registro Público
+            {{else if eq .Lang "en"}}
+            Public Archive
+            {{end}}
+        </a>
+
+        <label id="dark-mode">
+            <input id="dark" type="checkbox">
+            {{if eq .Lang "es"}}
+            Modo oscuro
+            {{else if eq .Lang "en"}}
+            Dark Mode
+            {{end}}
+        </label>
+    </nav>
 
     <div>
 
         {{ if .Errors }}
         <ul>
             {{ range .Errors }}
-            <span><i></i> {{ . }}</span>
+            <span>{{ . }}</span>
             {{end}}
         </ul>
         {{ end }}
     </div>
 
+    <!--------------------------------------------->
+
     <div id="transfer">
-        <h3>Orderne una transferencia</h3>
-        <form action="/transfer/" method="post">
-            <label for="concept"><i></i>Concepto:</label>
+        <form action="/a/{{.Lang}}/transfer/" method="post">
+            <h3>
+                {{if eq .Lang "es"}}
+                Orderne una transferencia
+                {{else if eq .Lang "en"}}
+                Order a transfer
+                {{end}}
+            </h3>
+            <label for="concept">
+                {{if eq .Lang "es"}}
+                Concepto:
+                {{else if eq .Lang "en"}}
+                Concept:
+                {{end}}
+            </label>
             <input type="text" name="concept" value="Gift" required>
 
-            <label for="amount"><i></i>Importe:</label>
+            
+            <label for="amount">
+                {{if eq .Lang "es"}}
+                Importe:
+                {{else if eq .Lang "en"}}
+                Amount:
+                {{end}}
+            </label>
             <input type="number" name="amount" min="0" required>
 
-            <label for="to"><i></i>A favor de:</label>
-            <input type="number" name="to" min="0" required>
+            <label for="to">
+                {{if eq .Lang "es"}}
+                A favor de:
+                {{else if eq .Lang "en"}}
+                Payee:
+                {{end}}
+            </label>
+            <select name="to">
+                {{ range .Book }}
+                <option value="{{.Id}}">{{.Holder}} [{{.Id}}]</option>
+                {{ end }}
+            </select>
 
-            <label for="due"><i></i>Fecha de pago:</label>
+            <label for="due">
+                {{if eq .Lang "es"}}
+                Fecha de pago:
+                {{else if eq .Lang "en"}}
+                Due date:
+                {{end}}
+            </label>
             <input type="number" name="due" min="0" value="{{.Clock}}" required>
 
-            <input type="submit" value="Submit">
+            <input type="submit" 
+                value='{{if eq .Lang "es"}}Firmar{{else if eq .Lang "en"}}Order{{end}}'>
         </form>
     </div>
 
-    <div id="transactions">
-        <h3>Transaction List</h3>
+        <div id="transactions">
         <table class="sortable">
+            <caption>
+                {{if eq .Lang "es"}}
+                Lista de transacciones
+                {{else if eq .Lang "en"}}
+                Transaction List
+                {{end}}
+            </caption>
             <thead>
                 <tr>
                     <th>
                         ID
                     </th>
                     <th>
+                        {{if eq .Lang "es"}}
                         Fecha
+                        {{else if eq .Lang "en"}}
+                        Date
+                        {{end}}
                     </th>
                     <th>
+                        {{if eq .Lang "es"}}
                         Concepto
+                        {{else if eq .Lang "en"}}
+                        Concept
+                        {{end}}
                     </th>
                     <th>
+                        {{if eq .Lang "es"}}
                         Importe
+                        {{else if eq .Lang "en"}}
+                        Amount
+                        {{end}}
                     </th>
                     <th>
+                        {{if eq .Lang "es"}}
                         Cuenta
+                        {{else if eq .Lang "en"}}
+                        Account
+                        {{end}}
                     </th>
                 </tr>
             </thead>
 
             <tbody id="transaction-table-body">
+
                 {{range .Account.Transactions}}
+
                 <tr>
-                    <td>{{.Id}}</td>
+                    <td>{{.Id}}
+                        {{ if gt .Date $.Clock}}
+                        <a href="/a/{{.Lang}}/revoke/{{.Id}}">
+                            {{if eq $.Lang "es"}}
+                            revocar
+                            {{else if eq $.Lang "en"}}
+                            revoke
+                            {{end}}
+                        </a>
+                        {{ end }}
+                    </td>
                     <td>{{.Date}}</td>
                     <td>{{.Concept}}</td>
                     <td>{{.Amount}}</td>
@@ -119,22 +242,44 @@
         </table>
     </div>
 
-    <div id="inbox">
-        <h3>Buzón</h3>
+        <div id="inbox">
         <table class="sortable">
+            <caption>
+                {{if eq .Lang "es"}}
+                Buzón
+                {{else if eq .Lang "en"}}
+                Inbox
+                {{end}}
+            </caption>
             <thead>
                 <tr>
                     <th>
+                        {{if eq .Lang "es"}}
                         Fecha
+                        {{else if eq .Lang "en"}}
+                        Date
+                        {{end}}
                     </th>
                     <th>
+                        {{if eq .Lang "es"}}
                         Título
+                        {{else if eq .Lang "en"}}
+                        Title
+                        {{end}}
                     </th>
                     <th>
-                        Remitente
+                        {{if eq .Lang "es"}}
+                        Rte.
+                        {{else if eq .Lang "en"}}
+                        From
+                        {{end}}
                     </th>
                     <th>
-                        Destinatario
+                        {{if eq .Lang "es"}}
+                        A/A
+                        {{else if eq .Lang "en"}}
+                        To
+                        {{end}}
                     </th>
                 </tr>
             </thead>
@@ -142,7 +287,7 @@
                 {{range .Account.Letters}}
                 <tr>
                     <td>{{.Date}}</td>
-                    <td><a href="/read/{{.Timestamp}}">{{.Title}}</a></td>
+                    <td><a href="/a/{{$.Lang}}/read/{{.Timestamp}}">{{.Title}}</a></td>
                     <td>{{.From}}</td>
                     <td>{{.To}}</td>
                 </tr>
@@ -150,6 +295,47 @@
             </tbody>
         </table>
     </div>
+
+    <hr>
+
+    <form action="/a/{{.Lang}}/changepasswd/" method="POST">
+        <h3>
+            {{if eq .Lang "es"}}
+            Cambie su contraseña
+            {{else if eq .Lang "en"}}
+            Change your password
+            {{end}}
+        </h3>
+        <label for="curr">
+            {{if eq .Lang "es"}}
+            Contraseña actual:
+            {{else if eq .Lang "en"}}
+            Current password:
+            {{end}}
+        </label>
+        <input type="password" name="curr" required>
+
+        <label for="new">
+            {{if eq .Lang "es"}}
+            Nueva contraseña:
+            {{else if eq .Lang "en"}}
+            New password:
+            {{end}}
+        </label>
+        <input type="password" name="new" required>
+
+        <label for="confirm">
+            {{if eq .Lang "es"}}
+            Confirme nueva contraseña:
+            {{else if eq .Lang "en"}}
+            Confirm new password:
+            {{end}}
+        </label>
+        <input type="password" name="confirm" required>
+
+        <input type="submit" 
+            value='{{if eq .Lang "es"}}Cambiar{{else if eq .Lang "en"}}Change{{end}}'>
+    </form>
 </body>
 
 </html>

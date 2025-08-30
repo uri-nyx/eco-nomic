@@ -8,7 +8,13 @@ import (
 	"fmt"
 	"path"
 	"os"
+	"bytes"
+	"html/template"
 
+
+	"github.com/yuin/goldmark"
+	"github.com/yuin/goldmark/parser"
+	"github.com/yuin/goldmark/extension"
 	_ "github.com/ncruces/go-sqlite3/driver"
 	_ "github.com/ncruces/go-sqlite3/embed"
 )
@@ -20,44 +26,6 @@ type Account struct {
 	Balance int64
 	Transactions []Transaction
 	Letters []Letter
-}
-
-
-
-func (a *Account) LoadLetter(letter_id uint64, b *Bank) (Letter, error) {
-	// check if account is either sender or receiver of this letter
-	var l Letter
-	found := false
-	for i:=0; i<len(a.Letters);i++ {
-		if a.Letters[i].Timestamp == letter_id {
-			l = a.Letters[i]
-			found = true
-			break
-		}
-	}
-
-	if !found {
-		return l, fmt.Errorf("No se encontró la carta en su buzón")
-	}
-
-	body, err := os.ReadFile(l.Path)
-	if err != nil {
-		return l, err
-	}
-
-	l.Body = body
-
-	l.From, err = b.GetAccountHolder(l.Sender)
-	if err != nil {
-		return l, err
-	}
-
-	l.To, err = b.GetAccountHolder(l.Receiver)
-	if err != nil {
-		return l, err
-	}
-
-	return l, nil
 }
 
 type Transaction struct {
@@ -72,7 +40,6 @@ type Transaction struct {
 	To_from string
 }
 
-
 type Letter struct {
 	Timestamp uint64
 	Sender int64
@@ -80,17 +47,110 @@ type Letter struct {
 	Path string
 	Title string
 	Body []byte
+	Html template.HTML
 	Date uint64
 	From string
 	To string
+	Public bool
 }
+
+type Bank struct {
+	db *sql.DB
+	clock uint64
+}
+
+var md goldmark.Markdown =  goldmark.New(
+	goldmark.WithExtensions(extension.GFM, extension.DefinitionList, extension.Typographer),
+	goldmark.WithParserOptions(parser.WithAutoHeadingID()))
+
+func (b *Bank) LoadDoc(letter_id uint64) (Letter, error) {
+	// Load document and its metadata (the same as a Letter)
+	var l Letter
+	err := b.db.QueryRow(
+		"SELECT sender, Path, Title, date, coalesce(public, 0), id FROM letters WHERE id = $1 and public = 1 ORDER BY id ASC;",
+		letter_id).Scan(&l.Sender, &l.Path, &l.Title, &l.Date, &l.Public, &l.Timestamp)
+
+
+	if err != nil {
+		return l, fmt.Errorf(ERR_DOC_NOT_FOUND)
+	}
+
+	log.Println("Reading file ", l.Path)
+
+	txt, err := os.ReadFile(l.Path)
+	if err != nil {
+		return l, err
+	}
+
+	l.Body = txt
+
+	var buf bytes.Buffer
+	err = md.Convert(txt, &buf)
+	if err != nil {
+		return l, err
+	}
+
+	l.Html = template.HTML(buf.String())
+
+	l.From, err = b.GetAccountHolder(l.Sender)
+	if err != nil {
+		return l, err
+	}
+
+	return l, nil
+}
+
+func (a *Account) LoadLetter(letter_id uint64, b *Bank) (Letter, error) {
+	// check if account is either sender or receiver of this letter
+	var l Letter
+	found := false
+	for i:=0; i<len(a.Letters);i++ {
+		if a.Letters[i].Timestamp == letter_id {
+			l = a.Letters[i]
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return l, fmt.Errorf(ERR_LETTER_NOT_IN_INBOX)
+	}
+
+	txt, err := os.ReadFile(l.Path)
+	if err != nil {
+		return l, err
+	}
+
+	l.Body = txt
+
+	var buf bytes.Buffer
+	err = md.Convert(txt, &buf)
+	if err != nil {
+		return l, err
+	}
+
+	l.Html = template.HTML(buf.String())
+
+	l.From, err = b.GetAccountHolder(l.Sender)
+	if err != nil {
+		return l, err
+	}
+
+	l.To, err = b.GetAccountHolder(l.Receiver)
+	if err != nil {
+		return l, err
+	}
+
+	return l, nil
+}
+
 
 func (l *Letter) Send(b *Bank) error {
 	insert := `
 	INSERT INTO letters 
-	(id, sender, receiver, Title, Path, Date)
+	(id, sender, receiver, Title, Path, Date, public)
 	VALUES
-	($1, $2, $3, $4, $5, $6)
+	($1, $2, $3, $4, $5, $6, $7)
 	`
 
 	_, err := b.GetAccountHolder(l.Receiver) 
@@ -98,7 +158,36 @@ func (l *Letter) Send(b *Bank) error {
 		return err
 	}
 	
-	_, err = b.db.Exec(insert, l.Timestamp, l.Sender, l.Receiver, l.Title, l.Path, l.Date)
+	_, err = b.db.Exec(insert, l.Timestamp, l.Sender, l.Receiver, l.Title, l.Path, l.Date, false)
+	if err != nil {
+		log.Println("Error inserting: " + err.Error())
+		return err
+	}
+
+	err = os.MkdirAll(path.Dir(l.Path), 0600)
+
+	if err != nil {
+		log.Println("Error creatinG directories: " + err.Error())
+		return err
+	}
+
+	return os.WriteFile(l.Path, l.Body, 0600)
+}
+
+func (l *Letter) Publish(b *Bank) error {
+	insert := `
+	INSERT INTO letters 
+	(id, sender, receiver, Title, Path, Date, public)
+	VALUES
+	($1, $2, $3, $4, $5, $6, $7)
+	`
+
+	_, err := b.GetAccountHolder(l.Receiver) 
+	if err != nil {
+		return err
+	}
+	
+	_, err = b.db.Exec(insert, l.Timestamp, l.Sender, l.Receiver, l.Title, l.Path, l.Date, true)
 	if err != nil {
 		log.Println("Error inserting: " + err.Error())
 		return err
@@ -111,13 +200,17 @@ func (l *Letter) Send(b *Bank) error {
 		return err
 	}
 
-	return os.WriteFile(l.Path, l.Body, 0600)
+	err = os.MkdirAll("static/archive", 0600)
+
+	err = os.WriteFile(l.Path, l.Body, 0600)
+	if err != nil {
+		log.Println("Error writing file: " + err.Error())
+		return err
+	}
+
+	return os.WriteFile(path.Join("static/", "archive", path.Base(l.Path)), l.Body, 0600)
 }
 
-type Bank struct {
-	db *sql.DB
-	clock uint64
-}
 
 func OpenBank(filename string) (*Bank, error) {
 	db, err := sql.Open("sqlite3", filename)
@@ -177,6 +270,37 @@ func (b *Bank) GetBook() ([]Book, error){
 	return book, nil
 }
 
+
+func (b *Bank) GetArchive() ([]Letter, error){
+	rows, err := b.db.Query("SELECT id, sender, receiver, Title, Path, Date FROM letters WHERE public = 1;")
+
+	if err != nil {
+		return nil, err
+	}
+
+	var archive []Letter
+
+
+	for rows.Next() {
+		var l Letter
+		if err := rows.Scan(&l.Timestamp, &l.Sender, &l.Receiver, &l.Title, &l.Path, &l.Date); err != nil {
+			return nil, err
+		}
+
+		l.Path = path.Join("static", "archive", path.Base(l.Path))
+		l.From, err = b.GetAccountHolder(l.Sender)
+
+		if err  != nil {
+			return nil, err
+		}
+
+		archive = append(archive, l)
+	}
+
+	return archive, nil
+}
+
+
 func (b *Bank) GetAccountHolder(id int64) (string, error) {
 	var holder string
 	err := b.db.QueryRow("SELECT holder FROM accounts WHERE id = $1;", id).Scan(&holder)
@@ -185,6 +309,28 @@ func (b *Bank) GetAccountHolder(id int64) (string, error) {
 	}
 
 	return holder, nil
+}
+
+func (b *Bank) GetHash(id int64) ([]byte, error) {
+	var password []byte
+	err := b.db.QueryRow("SELECT password FROM accounts WHERE id = $1;", id).Scan(&password)
+	if err != nil {
+		return []byte("none"), err
+	}
+
+	return password, nil
+}
+
+func (b *Bank) ChangePass(id int64, pass string) error {
+	hash, err := CreateHash(pass)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = b.db.Exec("UPDATE accounts SET password = $1 WHERE id = $2", hash, id)
+
+	return err
 }
 
 func (b *Bank) LoadAccountById(id int64) (*Account, error) {
@@ -264,28 +410,28 @@ func (b *Bank) Transfer(from uint64, to uint64, amount int64, due uint64, concep
 	// TODO: check if transaction is valid, and tidy up error messages
 	// cannot transfer to self!
 	if from == to {
-		return fmt.Errorf("No se puede transferir dinero a su misma cuenta")
+		return fmt.Errorf(ERR_TRANSFER_TO_SELF)
 	}
 
 	// cannot transfer if balance is lesser than amount
 	if amount > b.balance(int64(from)) {
-		return fmt.Errorf("No dispone de los fondos suficientes")
+		return fmt.Errorf(ERR_INSUFFICIENT_FUNDS)
 	}
 
 	// cannot transfer negative moneys
 	if amount < 0 {
-		return fmt.Errorf("No es posible transferir un importe negativo")
+		return fmt.Errorf(ERR_NEGATIVE_TRANSFER_AMOUNT)
 	}
 
 	// cannot transfer in the past!
 	if due < b.clock {
-		return fmt.Errorf("No es posible viajar en el tiempo...")
+		return fmt.Errorf(ERR_TIME_TRAVEL_IMPOSSIBLE)
 	}
 
 	// cannot transfer to no one or a non existing account
 	_, err := b.GetAccountHolder(int64(to))
 	if err != nil {
-		return fmt.Errorf("La cuenta a la que está intentando ordernar la transferencia no existe")
+		return fmt.Errorf(ERR_RECIPIENT_ACCOUNT_NOT_FOUND)
 	}
 
 
@@ -302,8 +448,8 @@ func (b *Bank) Transfer(from uint64, to uint64, amount int64, due uint64, concep
 
 func (b *Bank) balance(id int64) int64 {
 	// error handling
-	debits_query := "select sum(amount) from transactions where debitor = $1 and payed = 1 and revoked = 0;"
-	credits_query := "select sum(amount) from transactions where creditor = $1 and payed = 1 and revoked = 0;"
+	debits_query := "select coalesce(sum(amount), 0) from transactions where debitor = $1 and payed = 1 and revoked = 0;"
+	credits_query := "select coalesce(sum(amount), 0) from transactions where creditor = $1 and payed = 1 and revoked = 0;"
 	
 	_ = b.GetDate()
 	
@@ -354,9 +500,9 @@ func (b *Bank) getTransactions(id int64) ([]Transaction, error) {
 			}
 
 			if transactions[i].Debitor < 0 { 
-				transactions[i].To_from = fmt.Sprintf("de %s", debitor) 
+				transactions[i].To_from = fmt.Sprintf("<-- %s", debitor) 
 			} else { 
-				transactions[i].To_from = fmt.Sprintf("de %s [%04d]", debitor, transactions[i].Debitor) 
+				transactions[i].To_from = fmt.Sprintf("<-- %s [%04d]", debitor, transactions[i].Debitor) 
 			}
 		} else {
 			creditor, err := b.GetAccountHolder(transactions[i].Creditor)
@@ -365,9 +511,9 @@ func (b *Bank) getTransactions(id int64) ([]Transaction, error) {
 			}
 
 			if transactions[i].Creditor < 0 {
-				transactions[i].To_from = fmt.Sprintf("a %s", creditor)
+				transactions[i].To_from = fmt.Sprintf("--> %s", creditor)
 			} else { 
-				transactions[i].To_from = fmt.Sprintf("a %s [%04d]", creditor, transactions[i].Creditor)
+				transactions[i].To_from = fmt.Sprintf("--> %s [%04d]", creditor, transactions[i].Creditor)
 			}
 
 			transactions[i].Amount = - transactions[i].Amount
@@ -379,7 +525,7 @@ func (b *Bank) getTransactions(id int64) ([]Transaction, error) {
 
 
 func (b *Bank) getLetters(id int64) ([]Letter, error) {
-	rows, err := b.db.Query("SELECT id, sender, receiver, Title, Path, date FROM letters WHERE (sender = $1 or receiver = $2) ORDER BY id ASC;", id, id)
+	rows, err := b.db.Query("SELECT id, sender, receiver, Title, Path, date, coalesce(public, 0) FROM letters WHERE sender = $1 or receiver = $2 or public = 1 ORDER BY id ASC;", id, id)
 
 	if err != nil {
 		return nil, err
@@ -389,7 +535,7 @@ func (b *Bank) getLetters(id int64) ([]Letter, error) {
 
 	for rows.Next() {
 		var l Letter
-		if err := rows.Scan(&l.Timestamp, &l.Sender, &l.Receiver, &l.Title, &l.Path, &l.Date); err != nil {
+		if err := rows.Scan(&l.Timestamp, &l.Sender, &l.Receiver, &l.Title, &l.Path, &l.Date, &l.Public); err != nil {
 			return nil, err
 		}
 		
@@ -444,8 +590,6 @@ func (b *Bank) getLetter(id uint64) (Letter, error) {
 }
 
 
-
-
 func (b *Bank) RevokeTransaction(account_id int64, transaction_id uint64) error {
 
 	t, err := b.getTransaction(transaction_id)
@@ -462,7 +606,7 @@ func (b *Bank) RevokeTransaction(account_id int64, transaction_id uint64) error 
 			return err
 		}
 	} else {
-		return fmt.Errorf("La transacción no cumple los requerimientos para ser revocada por usted. Contacte con el Banco para resolver el problema.")
+		return fmt.Errorf(ERR_RECIPIENT_ACCOUNT_NOT_FOUND)
 	}
 
 	return nil

@@ -1,6 +1,23 @@
+
+███████╗░█████╗░░█████╗░░░░░░░███╗░░██╗░█████╗░███╗░░░███╗██╗░█████╗░░██████╗
+██╔════╝██╔══██╗██╔══██╗░░░░░░████╗░██║██╔══██╗████╗░████║██║██╔══██╗██╔════╝
+█████╗░░██║░░╚═╝██║░░██║█████╗██╔██╗██║██║░░██║██╔████╔██║██║██║░░╚═╝╚█████╗░
+██╔══╝░░██║░░██╗██║░░██║╚════╝██║╚████║██║░░██║██║╚██╔╝██║██║██║░░██╗░╚═══██╗
+███████╗╚█████╔╝╚█████╔╝░░░░░░██║░╚███║╚█████╔╝██║░╚═╝░██║██║╚█████╔╝██████╔╝
+╚══════╝░╚════╝░░╚════╝░░░░░░░╚═╝░░╚══╝░╚════╝░╚═╝░░░░░╚═╝╚═╝░╚════╝░╚═════╝░
+
 Please ask the sysadmin running the app to sign you upp in the system.
 These is a system intended for games between people who already know each other.
 If you don`t know the sysadmin, probably you are not playing the game or do 
 not intend to be here.
 
-If you are interested in using this system, check the Itch Io page!
+If you are interested in using this system for setting up a game, check the Itch Io page!
+
+--------------------------------------------------------------------------------
+
+Por favor, pide al administrador del sistema que te registre en el sistema.
+Este es un sistema pensado para partidas entre personas que ya se conocen.
+Si no conoces al administrador del sistema, es probable que no estés jugando o 
+que no debas estar aquí.
+
+Si estás interesado en usar este sistema para organizar una partida, ¡echa un vistazo a la página de Itch Io!
